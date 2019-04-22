@@ -13,9 +13,15 @@ class ToDoListViewController: UITableViewController {
 
     var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
+    let defaults = UserDefaults.standard //Interface to the user's database, where you store key-value pairs persistently across launches of your app
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        //Setting the itemArray equal to the the array in the UserDefaults
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            itemArray = items
+        }
     }
 
     
@@ -43,8 +49,6 @@ class ToDoListViewController: UITableViewController {
     //tableView func that lets you know which row has been selected
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //print (itemArray[indexPath.row])
-        
         //If/else statement used to assign or unassign a checkmark to a cell in the tableView 
         if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
@@ -70,10 +74,12 @@ class ToDoListViewController: UITableViewController {
             
             self.itemArray.append(textField.text!) //Adds value of the textField to the end of the itemArray
             
+            self.defaults.set(self.itemArray, forKey: "TodoListArray") //Saves updated itemArray to the UserDefaults; the key identifies the array in the UserDefaults
+            
             self.tableView.reloadData() //Reloads the tableView
         }
         
-        //Adding a textField to the UIAlert; "alertTextField" inside the completion handler is given by user ... can be named something else
+        //Adding a textField to the UIAlert; "alertTextField" inside the completion handler is gnamed by the programmer ... can be named something else
         alert.addTextField { (alertTextField) in
 
             alertTextField.placeholder = "Create new item" //Placeholder for the textField
