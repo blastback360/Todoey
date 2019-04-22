@@ -11,13 +11,14 @@ import UIKit
 //View controller that specializes in managing a table view; UITableViewController is the superclass 
 class ToDoListViewController: UITableViewController {
 
-    let itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
 
+    
     //MARK - Tableview Datasource Methods
 
     //Required tableView func that sets the amount of rows required for a particular tableView
@@ -36,6 +37,7 @@ class ToDoListViewController: UITableViewController {
         return cell
     }
     
+    
     //MARK - TableView Delegate Methods
     
     //tableView func that lets you know which row has been selected
@@ -53,6 +55,36 @@ class ToDoListViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true) //Allows for tableView cells to be momentarily highlighted instead of continously highlighted
     }
+    
+    //MARK: - Add New Items
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        
+        //Creation of a UIAlert that will pop-up whenever the Add button is pressed
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        
+        //What will happen when the user clicks the Add button in our UIAlert; is represented as the button in the UIAlert
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            
+            self.itemArray.append(textField.text!) //Adds value of the textField to the end of the itemArray
+            
+            self.tableView.reloadData() //Reloads the tableView
+        }
+        
+        //Adding a textField to the UIAlert; "alertTextField" inside the completion handler is given by user ... can be named something else
+        alert.addTextField { (alertTextField) in
+
+            alertTextField.placeholder = "Create new item" //Placeholder for the textField
+            textField = alertTextField //Setting the textField variable the text from the alertTextField completion handler
+        }
+        
+        alert.addAction(action) //Adding the action to the UIAlert
+        
+        present(alert, animated: true, completion: nil) //Code required to actually show alert
+    }
+    
 
 }
 
