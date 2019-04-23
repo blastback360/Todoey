@@ -11,15 +11,28 @@ import UIKit
 //View controller that specializes in managing a table view; UITableViewController is the superclass 
 class ToDoListViewController: UITableViewController {
 
-    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    var itemArray = [Item]()
     
     let defaults = UserDefaults.standard //Interface to the user's database, where you store key-value pairs persistently across launches of your app
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Setting the itemArray equal to the the array in the UserDefaults
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+        
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+        
+        let newItem2 = Item()
+        newItem2.title = "Buy Eggos"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "Destroy Demogorgon"
+        itemArray.append(newItem3)
+        
+        //Setting the itemArray equal to the array in the UserDefaults
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
             itemArray = items
         }
     }
@@ -38,7 +51,13 @@ class ToDoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath) //Setting cell with identifier created in prototype cell from the TableViewController
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row] //The item that we are currently trying to set up for the cell
+        
+        cell.textLabel?.text = item.title
+        
+        //Ternary operator ==>
+        // value = condition ? valueIfTrue : valueIfFalse
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -49,13 +68,9 @@ class ToDoListViewController: UITableViewController {
     //tableView func that lets you know which row has been selected
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //If/else statement used to assign or unassign a checkmark to a cell in the tableView 
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }
-        else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done //Assigns the "done" property at a certain index path the opposite value of the same "done" property at that same index path
+        
+        tableView.reloadData() //Reloads tableView
         
         tableView.deselectRow(at: indexPath, animated: true) //Allows for tableView cells to be momentarily highlighted instead of continously highlighted
     }
@@ -72,7 +87,11 @@ class ToDoListViewController: UITableViewController {
         //What will happen when the user clicks the Add button in our UIAlert; is represented as the button in the UIAlert
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            self.itemArray.append(textField.text!) //Adds value of the textField to the end of the itemArray
+            //Creation of Item object
+            let newItem = Item()
+            newItem.title = textField.text! //Assigning Item object the text from the text field
+            
+            self.itemArray.append(newItem) //Adds value of the textField to the end of the itemArray
             
             self.defaults.set(self.itemArray, forKey: "TodoListArray") //Saves updated itemArray to the UserDefaults; the key identifies the array in the UserDefaults
             
