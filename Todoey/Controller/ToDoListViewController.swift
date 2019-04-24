@@ -13,28 +13,17 @@ class ToDoListViewController: UITableViewController {
 
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard //Interface to the user's database, where you store key-value pairs persistently across launches of your app
+    //Creation of a file path to the documents folder; also creates a plist file named "Items.plist"
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+    //let defaults = UserDefaults.standard //Interface to the user's database, where you store key-value pairs persistently across launches of your app
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(dataFilePath!)
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Destroy Demogorgon"
-        itemArray.append(newItem3)
-        
-        //Setting the itemArray equal to the array in the UserDefaults
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+        loadItems()
     }
 
     
@@ -70,7 +59,7 @@ class ToDoListViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done //Assigns the "done" property at a certain index path the opposite value of the same "done" property at that same index path
         
-        tableView.reloadData() //Reloads tableView
+        saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true) //Allows for tableView cells to be momentarily highlighted instead of continously highlighted
     }
@@ -93,12 +82,11 @@ class ToDoListViewController: UITableViewController {
             
             self.itemArray.append(newItem) //Adds value of the textField to the end of the itemArray
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray") //Saves updated itemArray to the UserDefaults; the key identifies the array in the UserDefaults
+            self.saveItems()
             
-            self.tableView.reloadData() //Reloads the tableView
         }
         
-        //Adding a textField to the UIAlert; "alertTextField" inside the completion handler is gnamed by the programmer ... can be named something else
+        //Adding a textField to the UIAlert; "alertTextField" inside the completion handler is named by the programmer ... can be named something else
         alert.addTextField { (alertTextField) in
 
             alertTextField.placeholder = "Create new item" //Placeholder for the textField
@@ -110,6 +98,35 @@ class ToDoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil) //Code required to actually show alert
     }
     
+    //MARK - Model Manupulation Methods
+    
+    func saveItems() {
+        
+        let encoder = PropertyListEncoder() //An object that encodes instances of data types to a property list
+        
+        //Encoding and writing methods can throw an errors, so they must be put into a do-catch block
+        do {
+            let data = try encoder.encode(itemArray) //Encodes the itemArray into a property list 
+            try data.write(to: dataFilePath!) //Writes data to our dataFilePath
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        
+        tableView.reloadData() //Reloads the tableView
+    }
+    
+    func loadItems() {
+        
+        //Taps into our data from our dataFilePath; may also throw an error so is marked with a "try?" and assigned to the data variable using optional binding
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder() //An object that decodes instances of data types from a property list
+            do {
+                itemArray = try decoder.decode([Item].self, from: data) //Must specify what the data type of the thing that is going to be deocded with ".self" included after it 
+            } catch {
+                print ("Error decoding item array, \(error)")
+            }
+        }
 
+    }
 }
 
