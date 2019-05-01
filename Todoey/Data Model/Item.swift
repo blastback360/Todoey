@@ -9,8 +9,8 @@
 import Foundation
 
 //Item class conforms to the protocols of Encodable and Decodable i.e. Codable; the Item type can encode and decode itself to a plist or a JSON
-class Item: Codable {
+//class Item: Codable {
     
-    var title: String = ""
-    var done: Bool = false
-}
+    //var title: String = ""
+    //var done: Bool = false
+//}
