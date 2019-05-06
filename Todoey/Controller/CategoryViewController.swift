@@ -7,13 +7,13 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
 
-    var categories = [Category]()
+    let realm = try! Realm() //Initializing a new "Realm"
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext //Used to create, read, update, and delete our data; what communicates with our persistentContainer
+    var categories: Results<Category>? //Setting the variable "categories" to type "Results" that will contain "Category" objects; "Results" is an auto-updating container type in Realm
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,14 +25,14 @@ class CategoryViewController: UITableViewController {
     //MARK: - TableView Datasource Methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categories.count
+        return categories?.count ?? 1 //If categories count is nil, just return 1; "??" is the "Nil Coalescing Operator"
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categories[indexPath.row].name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
 
         return cell
     }
@@ -51,17 +51,19 @@ class CategoryViewController: UITableViewController {
         
         //Stores the indexPath of the selected tableView cell
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = categories[indexPath.row] //Setting the "selectedCategory" property equal to our array of "categories" at a certain index
+            destinationVC.selectedCategory = categories?[indexPath.row] //Setting the "selectedCategory" property of our "destinationVC" equal to our array of "categories" at a certain index if it is not nil
         }
     }
     
     
     //MARK: - Data Manipulation Methods
     
-    func saveCategories() {
+    func save(category: Category) {
         
         do {
-            try context.save()
+            try realm.write { //Trying to write to our Realm database
+                realm.add(category) //Trying to add a new category
+            }
         } catch {
             print("Error saving category \(error)")
         }
@@ -71,18 +73,13 @@ class CategoryViewController: UITableViewController {
     
     func loadCategories() {
         
-        let request: NSFetchRequest<Category> = Category.fetchRequest() //Gets back all the NSManagedObjects that were created using the Category entity
-        
-        do {
-        categories = try context.fetch(request) //Saves whatever gets returned into our "categories" array
-        } catch {
-            print ("Error loading categories \(error)")
-        }
+        categories = realm.objects(Category.self) //Pulls out all of the "items" inside our Realm that are of "category" objects 
         
         tableView.reloadData()
     }
-    //MARK: - Add New Categories 
     
+    
+    //MARK: - Add New Categories 
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
@@ -92,12 +89,10 @@ class CategoryViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             
-            let newCategory = Category(context: self.context)
+            let newCategory = Category() //Creation of an object from the "Category" class
             newCategory.name = textField.text!
             
-            self.categories.append(newCategory)
-            
-            self.saveCategories()
+            self.save(category: newCategory)
         }
         
         alert.addAction(action)

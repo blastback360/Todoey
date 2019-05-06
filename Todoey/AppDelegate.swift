@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,48 +17,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        print (Realm.Configuration.defaultConfiguration.fileURL!) //Used to locate where our Realm database is
         
-        //Statement that prints the file path to all the data saved using UserDefaults
-        //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
-        
+        do {
+            let realm = try Realm() //Creation of a new object from the Realm class
+//            try realm.write { //Commits the current state to our Realm database
+//                realm.add(data) //Adds a new object of "data"
+//            }
+        } catch {
+            print ("Error initializing new realm, \(error)")
+        }
         return true
     }
 
-    func applicationWillTerminate(_ application: UIApplication) {
-
-        self.saveContext()
-    }
-    
-    // MARK: - Core Data stack
-    
-    //Lazy variables only gets loaded with a value when it's needed; get a memory benefit because of this
-    //The NSPersistentContainer is where we will be storing all of our data; is a SQLite database
-    lazy var persistentContainer: NSPersistentContainer = {
-    
-        let container = NSPersistentContainer(name: "DataModel") //This constant sets up this new persistent container; name must match the name of the Data Model
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-               
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
-    
-    // MARK: - Core Data Saving Support
-    
-    //Provides  support to saving our data when our app is terminated 
-    func saveContext () {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-               
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
-    }
     
 }
