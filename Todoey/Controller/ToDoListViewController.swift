@@ -8,9 +8,10 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-//View controller that specializes in managing a table view; UITableViewController is the superclass 
-class ToDoListViewController: UITableViewController {
+//"ToDoListViewController" inherits from the super class "SwipeTableViewController" to recieve all its functionalities
+class ToDoListViewController: SwipeTableViewController {
 
     let realm = try! Realm() //Initializing a new "Realm"
     
@@ -23,6 +24,8 @@ class ToDoListViewController: UITableViewController {
         }
     }
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     //Creation of a file path to the documents folder; also creates a plist file named "Items.plist"
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
@@ -31,8 +34,43 @@ class ToDoListViewController: UITableViewController {
         
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
+        tableView.separatorStyle = .none //Removal of the lines separating each cell
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        
+        title = selectedCategory?.name //Setting the "title" (the large text in the "navigationController") to the "name" of the selected category
+        
+        guard let colorHex = selectedCategory?.cellColor else { fatalError() } //Creates a constant called "colorHex" and assigns it the value of "selectedCategory?.cellColor" if it is not nil
+            
+        updateNavBar(withHexCode: colorHex) //Navigation bar can't be updated in "viewDidLoad" because it will throw a fatal error
+    }
+    
+//    Changes the "navBar" of the "categoryViewController" to be it's original color 
+//    override func viewWillDisappear(_ animated: Bool) {
+//
+//       updateNavBar(withHexCode: "9A9A9A")
+//    }
+    
+    
+    
+    //MARK: = Nav Bar Setup Methods
+    
+    func updateNavBar(withHexCode colorHexCode: String) {
+        
+        //Creates a constant called "navBar" and assigns it the value of the current "navigationBar" in the current "navigationController"; but if "navigationController" is nil, it is going to throw a fatal error
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist.")}
+        
+        guard let navBarColor = UIColor(hexString: colorHexCode) else { fatalError() }//Creates a constant called "navBarColor" and assigns it the UIColor from the "hexString" if it is not nil
+        
+        navBar.barTintColor = navBarColor //"barTintColor": The tint color to apply to the navigation bar background
+        
+        navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true) //"tintColor": The tint color to apply to the navigation items and bar button items
+        
+        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)] //Sets the text color of the "navBar" to be the contrast of the "navBarColor"
+        
+        searchBar.barTintColor = navBarColor
+    }
     
     //MARK - Tableview Datasource Methods
 
@@ -45,16 +83,26 @@ class ToDoListViewController: UITableViewController {
     //Required tableView func that sets which cell to be used for each row
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath) //Setting cell with identifier created in prototype cell from the TableViewController
+        let cell = super.tableView(tableView, cellForRowAt: indexPath) //Tapping into the cell that gets created inside the super class at a certain indexPath
         
         if let item = todoItems?[indexPath.row] { //The item that we are currently trying to set up for the cell
             
             cell.textLabel?.text = item.title
             
+            //Use of optional binding because the "darkenByPercentage" method returns an optional UIColor and "cell.backgroundColor" needs a definite UIColor
+            //"UIColor(hexString: selectedCategory!.cellColor)?" means that if a valid "hexString" is returned, proceed on with the rest of the code block 
+            //Must cast "indexPath.row" and "todoItems.count" into CGFloats seperately
+            if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: (CGFloat(indexPath.row)) / CGFloat(todoItems!.count)) {
+                
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true) //Use of the "ChameleonFramework" to have the color of the textlabel contrast the cell background color
+            }
+        
             //Ternary operator ==>
             // value = condition ? valueIfTrue : valueIfFalse
             cell.accessoryType = item.done ? .checkmark : .none
         }
+            
         else {
             cell.textLabel?.text = "No Items Added"
         }
@@ -137,6 +185,22 @@ class ToDoListViewController: UITableViewController {
         tableView.reloadData()
     }
 
+    //Ovveriding the functionalities of the "updateModel" method from the super class "SwipeTableViewController"
+    override func updateModel(at indexPath: IndexPath) {
+        
+        //Use of optional chaining to grab the "todoItem" at a certain indexPath
+        if let item = todoItems?[indexPath.row] {
+
+            do {
+                try realm.write {
+                    realm.delete(item)
+                }
+                } catch {
+                    print("Error deleting item, \(error)")
+                }
+            }
+        }
+    
 }
 
 //MARK - SearchBar Delegate Methods

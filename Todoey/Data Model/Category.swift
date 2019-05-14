@@ -15,7 +15,8 @@ class Category: Object {
 
 //When using Realm, variables must be marked with "@objc dynamic"; "dynamic" is declaration modifier that allows Realm to monitor for changes
     @objc dynamic var name: String = ""
-
+    @objc dynamic var cellColor: String = ""
+    
     //Creation of a constant named "Items" that holds a "List" of Item objects initialized as an empty "List"; "List" is a container type
     //Defines the forward relationship; inside each "Category" there's something called "items" that points to a List of "Item" objects
     let items = List<Item>()

@@ -8,8 +8,10 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
+//"CategoryViewController" inherits from the super class "SwipeTableViewController" to recieve all its functionalities
+class CategoryViewController: SwipeTableViewController {
 
     let realm = try! Realm() //Initializing a new "Realm"
     
@@ -19,6 +21,8 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
 
         loadCategories()
+
+        tableView.separatorStyle = .none //Removal of the lines separating each cell
     }
 
     
@@ -28,12 +32,27 @@ class CategoryViewController: UITableViewController {
         return categories?.count ?? 1 //If categories count is nil, just return 1; "??" is the "Nil Coalescing Operator"
     }
     
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath) //Tapping into the cell that gets created inside the super class at a certain indexPath
         
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
-
+        if let category = categories?[indexPath.row] {
+        
+            cell.textLabel?.text = category.name
+            
+            guard let categoryColor = UIColor(hexString: category.cellColor) else {fatalError()}
+            
+            cell.backgroundColor = categoryColor
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            
+            //Older code; good for reference 
+            //cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
+            //cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].cellColor ?? "9A9A9A")
+            //cell.backgroundColor = UIColor.randomFlat.hexValue()
+        
+        }
+            
         return cell
     }
     
@@ -79,6 +98,26 @@ class CategoryViewController: UITableViewController {
     }
     
     
+    //MARK: - Delete Data After Swipe
+    
+    //Ovveriding the functionalities of the "updateModel" method from the super class "SwipeTableViewController"
+    override func updateModel(at indexPath: IndexPath) {
+
+        //super.updateModel(at: indexPath) //It is possible to call functions that exist in your super class in this way
+        
+        //Deleting an item from our realm; use of optional binding because "categories" is an optional
+        if let categoryForDeletion = self.categories?[indexPath.row] {
+
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoryForDeletion) //Looks inside the collection of results called "categories" and deletes a category at a certain indexPath
+                }
+            } catch {
+                print ("Error deleting category, \(error)")
+            }
+        }
+    }
+    
     //MARK: - Add New Categories 
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -91,6 +130,7 @@ class CategoryViewController: UITableViewController {
             
             let newCategory = Category() //Creation of an object from the "Category" class
             newCategory.name = textField.text!
+            newCategory.cellColor = UIColor.randomFlat.hexValue() //Persisting the hexValue of a random color for a category cell using the ChameleonFramework 
             
             self.save(category: newCategory)
         }
@@ -104,8 +144,9 @@ class CategoryViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
-    
-    
-    
-    
 }
+
+
+
+
+

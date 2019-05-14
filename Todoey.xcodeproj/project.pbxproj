@@ -14,6 +14,7 @@
 		0D5C8E45226C495F0018089F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D5C8E43226C495F0018089F /* Main.storyboard */; };
 		0D5C8E47226C49600018089F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D5C8E46226C49600018089F /* Assets.xcassets */; };
 		0D5C8E4A226C49600018089F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D5C8E48226C49600018089F /* LaunchScreen.storyboard */; };
+		0D788C6D2282486100E14D86 /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D788C6C2282486100E14D86 /* SwipeTableViewController.swift */; };
 		0D7BB5452277B49900FB31BE /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7BB5442277B49900FB31BE /* CategoryViewController.swift */; };
 		3995433A9689D57AE44B3D28 /* Pods_Todoey.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD81BA2188D36314F147705D /* Pods_Todoey.framework */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 		0D5C8E46226C49600018089F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0D5C8E49226C49600018089F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0D5C8E4B226C49600018089F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0D788C6C2282486100E14D86 /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		0D7BB5442277B49900FB31BE /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		21DD8F2A9A97E28ED880F638 /* Pods-Todoey.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Todoey.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Todoey/Pods-Todoey.debug.xcconfig"; sourceTree = "<group>"; };
 		96F667E6E71D45E28BAC75CA /* Pods-Todoey.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Todoey.release.xcconfig"; path = "Pods/Target Support Files/Pods-Todoey/Pods-Todoey.release.xcconfig"; sourceTree = "<group>"; };
@@ -89,6 +91,7 @@
 		0D5C8E54226E81580018089F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				0D788C6C2282486100E14D86 /* SwipeTableViewController.swift */,
 				0D7BB5442277B49900FB31BE /* CategoryViewController.swift */,
 				0D5C8E41226C495F0018089F /* ToDoListViewController.swift */,
 			);
@@ -229,15 +232,19 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Todoey/Pods-Todoey-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/ChameleonFramework/ChameleonFramework.framework",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SwipeCellKit/SwipeCellKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ChameleonFramework.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwipeCellKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -255,6 +262,7 @@
 				0D5C8E42226C495F0018089F /* ToDoListViewController.swift in Sources */,
 				0D3D20A5227BFD2700D03D07 /* Item.swift in Sources */,
 				0D5C8E40226C495F0018089F /* AppDelegate.swift in Sources */,
+				0D788C6D2282486100E14D86 /* SwipeTableViewController.swift in Sources */,
 				0D3D20A7227BFD3600D03D07 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
